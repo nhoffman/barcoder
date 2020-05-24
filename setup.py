@@ -51,7 +51,7 @@ params = {'author': 'Your name',
           'test_suite': 'tests',
           'cmdclass': {'check_version': CheckVersion},
           'install_requires': [
-              'barcode==1.0.1',
+              'python-barcode==0.11.0',
               'qrcode==6.1',
               'reportlab==3.5.42',
           ]}
