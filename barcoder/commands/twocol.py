@@ -5,25 +5,19 @@
 # https://programtalk.com/vs2/python/8113/ReportLab/tests/test_graphics_images.py/
 
 import logging
-import io
 import tempfile
-import secrets
 from os import path
-import string
-import hashlib
 import datetime
 import argparse
 import sys
-
-from barcode.writer import ImageWriter
-import barcode
-import qrcode
 
 from reportlab.lib.pagesizes import letter
 from reportlab.graphics.shapes import Drawing, String, Image
 from reportlab.graphics import renderPDF
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.units import inch
+
+from barcoder.utils import (get_chunks, get_code, get_qr, get_code128)
 
 log = logging.getLogger(__name__)
 
@@ -39,54 +33,6 @@ LABEL_HEIGHT = (1 + 5 / 16) * inch
 SHEET_TOP = (10 + 3 / 16) * inch
 
 VERSION = 3
-
-
-def get_chunks(text, n):
-    for i in range(0, len(text), n):
-        yield text[i:i + n]
-
-
-def get_code(length=16):
-    """Return a string of the specified length composed of N - 1 random
-    characters followed by the uppercased first character of the md5 checksum.
-
-    """
-
-    chars = [c for c in string.ascii_uppercase + string.digits
-             if c not in {'I', '1', 'O', '0'}]
-
-    text = ''.join(secrets.choice(chars) for i in range(length - 1))
-    check_char = hashlib.md5(text.encode('utf-8')).hexdigest()[0].upper()
-
-    return text + check_char
-
-
-def get_qr(text):
-    qr = qrcode.QRCode()
-    qr.add_data(text)
-    qr.make(fit=True)
-
-    bc = qr.make_image(fill_color="black", back_color="white")
-    with io.BytesIO() as f:
-        bc.save(f)
-        f.seek(0)
-        return f.read()
-
-
-def get_code128(text):
-
-    # Sunquest expects a semicolon before the payload
-    ean = barcode.get('code128', ';' + text, writer=ImageWriter())
-    # print(ean.default_writer_options)
-    options = {
-        'module_height': 5,
-        'text_distance': 1,
-    }
-
-    with io.BytesIO() as f:
-        ean.write(f, options=options, text='-'.join(get_chunks(text, 4)))
-        f.seek(0)
-        return f.read()
 
 
 def lablabel(barcode_image, counter, batch):
