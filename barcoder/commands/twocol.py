@@ -17,7 +17,7 @@ from reportlab.graphics import renderPDF
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.units import inch
 
-from barcoder.utils import (get_chunks, get_code, get_qr, get_code128)
+from barcoder.utils import (get_chunks, get_code, get_qr, get_code128, hline, vline)
 
 log = logging.getLogger(__name__)
 

@@ -4,6 +4,8 @@ import secrets
 import hashlib
 import io
 
+from reportlab.lib.pagesizes import letter
+
 from barcode.writer import ImageWriter
 import barcode
 import qrcode
@@ -58,3 +60,18 @@ def get_code128(text):
         f.seek(0)
         return f.read()
 
+
+def hline(p, y, pagesize=letter):
+    """
+    Draw a horizontal line at y given p = canvas.beginPath()
+    """
+    p.moveTo(0, y)
+    p.lineTo(pagesize[0], y)
+
+
+def vline(p, x, pagesize=letter):
+    """
+    Draw a vertical line at x given p = canvas.beginPath()
+    """
+    p.moveTo(x, 0)
+    p.lineTo(x, pagesize[1])
