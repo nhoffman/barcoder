@@ -33,8 +33,12 @@ def get_code(length=16):
     return text + check_char
 
 
-def get_qr(text):
-    qr = qrcode.QRCode()
+def get_qr(text, **kwargs):
+    """Return bytes representing a QR code image. kwargs can be used to
+    provide parameters to qrcode.QRCode() constructor.
+
+    """
+    qr = qrcode.QRCode(**kwargs)
     qr.add_data(text)
     qr.make(fit=True)
 
