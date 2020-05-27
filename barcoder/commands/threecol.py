@@ -6,11 +6,13 @@
 
 import logging
 import tempfile
+import os
 from os import path
 import datetime
 import argparse
 import sys
 from collections import namedtuple
+from pathlib import Path
 
 from reportlab.lib.pagesizes import letter
 from reportlab.graphics.shapes import Drawing, String, Image
@@ -35,6 +37,11 @@ layout1 = Layout(pagesize=letter, label_height=1 * inch, label_width=2.5 * inch,
                  num_x=3, num_y=8,
                  margin_left=(5 / 16) * inch, margin_bottom=(5 / 8) * inch,
                  vspace=0.25 * inch, hspace=(3 / 16) * inch)
+
+layout2 = Layout(pagesize=letter, label_height=1 * inch, label_width=(2 + 5 / 8) * inch,
+                 num_x=3, num_y=10,
+                 margin_left=(3 / 16) * inch, margin_bottom=0.5 * inch,
+                 vspace=0, hspace=(1 / 8) * inch)
 
 
 def draw_grid(canvas, layout, include_vline=False):
@@ -199,10 +206,14 @@ def fill_sheet(canvas, layout, page_number, fake_code=None, batch=None):
 
 
 def build_parser(parser):
+
     parser.add_argument('-o', '--outfile',
-                        help='Output file name (default '
-                        'is "securelink-labels-{date}-n{npages}")')
+                        default='securelink-3x10-{batch}-{fileno:03d}-n{npages}.pdf',
+                        help='File name template [%(default)s]')
+    parser.add_argument('-d', '--dirname', default='.',
+                        help='directory for output [%(default)s]')
     parser.add_argument('-n', '--npages', default=1, type=int)
+    parser.add_argument('-N', '--nfiles', default=1, type=int)
     parser.add_argument('-b', '--batch', help='batch identifier (placed on lab label)')
     parser.add_argument('--vline', help='draw vertical line',
                         action='store_true', default=False)
@@ -210,21 +221,25 @@ def build_parser(parser):
 
 
 def action(args):
-    if args.outfile:
-        outfile = args.outfile
-    else:
-        date = datetime.datetime.now().strftime('%Y-%m-%d')
-        outfile = f'securelink-labels-{date}-n{args.npages}.pdf'
+    layout = layout2
 
-    print(f'writing {outfile}')
+    outdir = Path(args.dirname)
+    outdir.mkdir(parents=True, exist_ok=True)
 
-    layout = layout1
+    for fileno in range(1, args.nfiles + 1):
+        outfile = outdir / args.outfile.format(
+            batch=args.batch or '',
+            fileno=fileno,
+            npages=args.npages
+        )
 
-    canvas = Canvas(outfile, pagesize=layout.pagesize)
-    for page_number in range(args.npages):
-        fill_sheet(canvas, layout=layout, page_number=page_number,
-                   fake_code=args.fake_code, batch=args.batch)
-        draw_grid(canvas, layout=layout, include_vline=args.vline)
+        print(outfile)
 
-    canvas.save()
+        canvas = Canvas(str(outfile), pagesize=layout.pagesize)
+        for page_number in range(args.npages):
+            fill_sheet(canvas, layout=layout, page_number=page_number,
+                       fake_code=args.fake_code, batch=args.batch)
+            draw_grid(canvas, layout=layout, include_vline=args.vline)
+
+        canvas.save()
 
