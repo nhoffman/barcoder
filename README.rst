@@ -22,10 +22,13 @@ Installation into a virtualenv::
   pip install -U pip
   pip install -e .
 
-
 Usage
 =====
 
-Create a bunch of barcodes::
+Create a batch of 3 barcode files with 30 pages each in directory ``barcodes``::
 
+  % barcoder threecol --dirname ./barcodes --npages 30 --nfiles 10 --batch 2020-05-27
+  barcodes/securelink-3x10-2020-05-27-001-n30.pdf
+  barcodes/securelink-3x10-2020-05-27-002-n30.pdf
+  barcodes/securelink-3x10-2020-05-27-003-n30.pdf
 
