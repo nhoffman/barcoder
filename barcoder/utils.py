@@ -50,9 +50,7 @@ def get_qr(text, **kwargs):
 
 
 def get_code128(text):
-
-    # Sunquest expects a semicolon before the payload
-    ean = barcode.get('code128', ';' + text, writer=ImageWriter())
+    ean = barcode.get('code128', text, writer=ImageWriter())
     # print(ean.default_writer_options)
     options = {
         'module_height': 5,

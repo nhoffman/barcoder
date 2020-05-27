@@ -140,7 +140,8 @@ def fill_sheet(canvas, page_number, fake_code=None, batch=None):
 
             pth1 = path.join(d, code) + '-code128.png'
             with open(pth1, 'wb') as f:
-                f.write(get_code128(code))
+                # Sunquest expects a semicolon before the payload
+                f.write(get_code128(';' + code))
             label1 = lablabel(pth1, counter, batch)
 
             renderPDF.draw(label1, canvas, 0, y)
