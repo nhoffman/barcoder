@@ -44,7 +44,7 @@ params = {'author': 'Your name',
           'packages': find_packages(),
           'package_dir': {'barcoder': 'barcoder'},
           'entry_points': {
-              'console_scripts': ['barcoder = barcoder.scripts.main:main']
+              'console_scripts': ['barcoder = barcoder.main:main']
           },
           'version': __version__,
           'package_data': {'barcoder': package_data},
