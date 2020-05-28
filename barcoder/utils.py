@@ -49,8 +49,12 @@ def get_qr(text, **kwargs):
         return f.read()
 
 
-def get_code128(text):
-    ean = barcode.get('code128', text, writer=ImageWriter())
+def get_code128(text, add_semicolon=False):
+    ean = barcode.get(
+        'code128',
+        ';' + text if add_semicolon else text,
+        writer=ImageWriter())
+
     # print(ean.default_writer_options)
     options = {
         'module_height': 5,

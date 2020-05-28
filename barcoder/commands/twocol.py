@@ -10,6 +10,7 @@ from os import path
 import datetime
 import argparse
 import sys
+from pathlib import Path
 
 from reportlab.lib.pagesizes import letter
 from reportlab.graphics.shapes import Drawing, String, Image
@@ -37,14 +38,13 @@ VERSION = 3
 
 def lablabel(barcode_image, counter, batch):
 
-    date = datetime.datetime.now().strftime('%Y-%m-%d')
     label_drawing = Drawing(LABEL_WIDTH, LABEL_HEIGHT)
 
     bc_width, bc_height = 180, 60
     bc_top = bc_height - 8
 
     ralign = LABEL_WIDTH - 20
-    tag = f'{batch} ({counter})' if batch else f'({counter})'
+    tag = f'({counter})'
 
     # 0 is bottom
 
@@ -81,7 +81,7 @@ def lablabel(barcode_image, counter, batch):
     label_drawing.add(Image(20, -10, bc_width, bc_height, barcode_image))
 
     label_drawing.add(String(ralign, 0,
-                             f'v{VERSION} {date}',
+                             f'{batch} v{VERSION}',
                              fontName="Helvetica",
                              fontSize=8, textAnchor="end"))
 
@@ -141,7 +141,7 @@ def fill_sheet(canvas, page_number, fake_code=None, batch=None):
             pth1 = path.join(d, code) + '-code128.png'
             with open(pth1, 'wb') as f:
                 # Sunquest expects a semicolon before the payload
-                f.write(get_code128(';' + code))
+                f.write(get_code128(code, add_semicolon=True))
             label1 = lablabel(pth1, counter, batch)
 
             renderPDF.draw(label1, canvas, 0, y)
@@ -190,25 +190,15 @@ def draw_grid(canvas, include_vline=False):
     canvas.drawPath(p)
 
 
-def write_labels(outfile, npages=1, include_vline=False, fake_code=None, batch=None):
-
-    canvas = Canvas(outfile, pagesize=PAGESIZE)
-    for page_number in range(npages):
-        fill_sheet(canvas, page_number=page_number, fake_code=fake_code, batch=batch)
-        draw_grid(canvas, include_vline=include_vline)
-
-        # starts a new page
-        canvas.showPage()
-
-    canvas.save()
-
-
-
 def build_parser(parser):
+
     parser.add_argument('-o', '--outfile',
-                        help='Output file name (default '
-                        'is "securelink-labels-{date}-n{npages}")')
+                        default='securelink-2x7-{batch}-{fileno:03d}-n{npages}.pdf',
+                        help='File name template [%(default)s]')
+    parser.add_argument('-d', '--dirname', default='.',
+                        help='directory for output [%(default)s]')
     parser.add_argument('-n', '--npages', default=1, type=int)
+    parser.add_argument('-N', '--nfiles', default=1, type=int)
     parser.add_argument('-b', '--batch', help='batch identifier (placed on lab label)')
     parser.add_argument('--vline', help='draw vertical line',
                         action='store_true', default=False)
@@ -216,13 +206,25 @@ def build_parser(parser):
 
 
 def action(args):
-    if args.outfile:
-        outfile = args.outfile
-    else:
-        date = datetime.datetime.now().strftime('%Y-%m-%d')
-        outfile = f'securelink-labels-{date}-n{args.npages}.pdf'
+    outdir = Path(args.dirname)
+    outdir.mkdir(parents=True, exist_ok=True)
 
-    print(f'writing {outfile}')
-    write_labels(outfile, npages=args.npages, include_vline=args.vline,
-                 fake_code=args.fake_code, batch=args.batch)
+    for fileno in range(1, args.nfiles + 1):
+        outfile = outdir / args.outfile.format(
+            batch=args.batch or '',
+            fileno=fileno,
+            npages=args.npages
+        )
+
+        print(outfile)
+
+        canvas = Canvas(str(outfile), pagesize=PAGESIZE)
+        for page_number in range(args.npages):
+            fill_sheet(canvas, page_number=page_number,
+                       fake_code=args.fake_code, batch=args.batch)
+            draw_grid(canvas, include_vline=args.vline)
+            # starts a new page
+            canvas.showPage()
+
+        canvas.save()
 
