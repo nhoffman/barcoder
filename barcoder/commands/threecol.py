@@ -240,6 +240,8 @@ def action(args):
             fill_sheet(canvas, layout=layout, page_number=page_number,
                        fake_code=args.fake_code, batch=args.batch)
             draw_grid(canvas, layout=layout, include_vline=args.vline)
+            # starts a new page
+            canvas.showPage()
 
         canvas.save()
 
