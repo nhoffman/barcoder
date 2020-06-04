@@ -98,39 +98,39 @@ def specimenlabel(layout, code, img, counter, batch=None):
 def lablabel(layout, code, img, counter, batch=None):
     label_drawing = Drawing(layout.label_width, layout.label_height)
     # text positioning relative to top of label
-
     lmar = 5
-    ypos = layout.label_height - 10
+
+    # x, y, width, height, path
+    bc_width = 2 * inch
+    bc_height = 0.5 * inch
+    barcode = Image(0, 30, bc_width, bc_height, img)
+    label_drawing.add(barcode)
+
+    label_drawing.add(String(bc_width, 55,
+                             text=f'{counter} v{VERSION}',
+                             fontName="Helvetica", fontSize=8, textAnchor="start"))
+
+    label_drawing.add(String(bc_width, 45,
+                             text=batch,
+                             fontName="Helvetica", fontSize=8, textAnchor="start"))
+
+    ypos = 25
     label_drawing.add(String(lmar, ypos,
                              text='Place on lab requisition',
                              fontName="Helvetica-Bold",
                              fontSize=10, textAnchor="start"))
 
-    ypos -= 10
+    ypos = 15
     label_drawing.add(String(lmar, ypos,
                              'Lab: if order contains QRCODE scan there;',
                              fontName="Helvetica",
                              fontSize=8, textAnchor="start"))
 
-    ypos -= 10
+    ypos = 5
     label_drawing.add(String(lmar, ypos,
                              'if not, add QRCOD and scan result at prompt.',
                              fontName="Helvetica",
                              fontSize=8, textAnchor="start"))
-
-    # x, y, width, height, path
-    bc_width = 2 * inch
-    bc_height = 0.5 * inch
-    barcode = Image(0, 0, bc_width, bc_height, img)
-    label_drawing.add(barcode)
-
-    label_drawing.add(String(bc_width, 7,
-                             text=f'{counter} v{VERSION}',
-                             fontName="Helvetica", fontSize=8, textAnchor="start"))
-
-    label_drawing.add(String(bc_width, 16,
-                             text=batch,
-                             fontName="Helvetica", fontSize=8, textAnchor="start"))
 
     return label_drawing
 
@@ -183,7 +183,7 @@ def fill_sheet(canvas, layout, page_number, fake_code=None, batch=None):
 
             qr_path = path.join(d, code) + '-qr.png'
             with open(qr_path, 'wb') as f:
-                f.write(get_qr(f'{URL}?code={code}', border=2))
+                f.write(get_qr(f'{URL}?code={code}', border=4))
 
             # first column
             label1 = specimenlabel(layout, code, code128_path, counter, batch)
