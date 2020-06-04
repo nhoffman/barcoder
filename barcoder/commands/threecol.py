@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 URL = 'https://securelink.labmed.uw.edu'
 
-VERSION = 1
+VERSION = 2
 
 Layout = namedtuple('Layout', ['pagesize', 'label_height', 'label_width',
                                'num_x', 'num_y',
