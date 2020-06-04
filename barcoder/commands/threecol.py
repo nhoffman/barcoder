@@ -84,11 +84,15 @@ def specimenlabel(layout, code, img, counter, batch=None):
                              text=batch,
                              fontName="Helvetica", fontSize=8, textAnchor="start"))
 
-    label_drawing.add(String(5, bc_height + 5,
-                             'Birth Date (m/d/y): _______________________',
+    label_drawing.add(String(bc_width, 26,
+                             text='specimen',
                              fontName="Helvetica", fontSize=8, textAnchor="start"))
 
-    label_drawing.add(String(5, bc_height + 20,
+    label_drawing.add(String(5, bc_height + 5,
+                             'DOB (MM/DD/YYYY): ____________________',
+                             fontName="Helvetica", fontSize=8, textAnchor="start"))
+
+    label_drawing.add(String(5, bc_height + 18,
                              'Name: ________________________________',
                              fontName="Helvetica", fontSize=8, textAnchor="start"))
 
