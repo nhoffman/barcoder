@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 URL = 'https://securelink.labmed.uw.edu'
 
-VERSION = 2
+VERSION = 3
 
 Layout = namedtuple('Layout', ['pagesize', 'label_height', 'label_width',
                                'num_x', 'num_y',
@@ -71,22 +71,18 @@ def specimenlabel(layout, code, img, counter, batch=None):
     label_drawing = Drawing(layout.label_width, layout.label_height)
 
     # x, y, width, height, path
-    bc_width = 2 * inch
+    bc_width = 2.2 * inch
     bc_height = 0.5 * inch
     barcode = Image(0, 0, bc_width, bc_height, img)
     label_drawing.add(barcode)
 
-    label_drawing.add(String(bc_width, 7,
-                             text=f'{counter} v{VERSION}',
-                             fontName="Helvetica", fontSize=8, textAnchor="start"))
+    label_drawing.add(String(layout.label_width - 5, 16,
+                             text=f'{counter}',
+                             fontName="Helvetica", fontSize=6, textAnchor="end"))
 
-    label_drawing.add(String(bc_width, 16,
-                             text=batch,
-                             fontName="Helvetica", fontSize=8, textAnchor="start"))
-
-    label_drawing.add(String(bc_width, 26,
+    label_drawing.add(String(layout.label_width - 5, 7,
                              text='specimen',
-                             fontName="Helvetica", fontSize=8, textAnchor="start"))
+                             fontName="Helvetica", fontSize=6, textAnchor="end"))
 
     label_drawing.add(String(5, bc_height + 5,
                              'DOB (MM/DD/YYYY): ____________________',
