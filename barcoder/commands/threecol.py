@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 URL = 'https://securelink.labmed.uw.edu'
 
-VERSION = 3
+VERSION = 4
 
 Layout = namedtuple('Layout', ['pagesize', 'label_height', 'label_width',
                                'num_x', 'num_y',
@@ -95,7 +95,7 @@ def specimenlabel(layout, code, img, counter, batch=None):
     return label_drawing
 
 
-def lablabel(layout, code, img, counter, batch=None):
+def lablabel(layout, code, counter, batch=None):
     label_drawing = Drawing(layout.label_width, layout.label_height)
     # text positioning relative to top of label
     lmar = 5
@@ -103,8 +103,6 @@ def lablabel(layout, code, img, counter, batch=None):
     # x, y, width, height, path
     bc_width = 2 * inch
     bc_height = 0.5 * inch
-    barcode = Image(0, 30, bc_width, bc_height, img)
-    label_drawing.add(barcode)
 
     label_drawing.add(String(bc_width, 55,
                              text=f'{counter} v{VERSION}',
@@ -116,19 +114,19 @@ def lablabel(layout, code, img, counter, batch=None):
 
     ypos = 25
     label_drawing.add(String(lmar, ypos,
-                             text='Place on lab requisition',
+                             text='This label may be discarded',
                              fontName="Helvetica-Bold",
                              fontSize=10, textAnchor="start"))
 
     ypos = 15
     label_drawing.add(String(lmar, ypos,
-                             'Lab: if order contains QRCODE scan there;',
+                             '<-- place on specimen',
                              fontName="Helvetica",
                              fontSize=8, textAnchor="start"))
 
     ypos = 5
     label_drawing.add(String(lmar, ypos,
-                             'if not, add QRCOD and scan result at prompt.',
+                             '     give to individual being tested -->',
                              fontName="Helvetica",
                              fontSize=8, textAnchor="start"))
 
@@ -172,7 +170,7 @@ def fill_sheet(canvas, layout, page_number, fake_code=None, batch=None):
 
     with tempfile.TemporaryDirectory() as d:
         ypos = layout.margin_bottom
-        for label_number in range(layout.num_y):
+        for label_number in reversed(range(layout.num_y)):
             code = fake_code or get_code()
             counter = f'({page_number + 1}-{label_number + 1})'
 
@@ -190,7 +188,7 @@ def fill_sheet(canvas, layout, page_number, fake_code=None, batch=None):
             renderPDF.draw(label1, canvas, layout.margin_left, ypos)
 
             # second column
-            label2 = lablabel(layout, code, code128_path, counter, batch)
+            label2 = lablabel(layout, code, counter, batch)
             renderPDF.draw(label2, canvas,
                            layout.margin_left + layout.label_width + layout.hspace,
                            ypos)
@@ -212,9 +210,10 @@ def build_parser(parser):
                         help='File name template [%(default)s]')
     parser.add_argument('-d', '--dirname', default='.',
                         help='directory for output [%(default)s]')
-    parser.add_argument('-n', '--npages', default=1, type=int)
-    parser.add_argument('-N', '--nfiles', default=1, type=int)
-    parser.add_argument('-b', '--batch', help='batch identifier (placed on lab label)')
+    parser.add_argument('-n', '--npages', default=1, type=int, help='[default %(default)s]')
+    parser.add_argument('-N', '--nfiles', default=1, type=int, help='[default %(default)s]')
+    parser.add_argument('-b', '--batch', default='',
+                        help='batch identifier (placed on lab label)')
     parser.add_argument('--grid', help='draw grid',
                         action='store_true', default=False)
     parser.add_argument('--vline', help='include vertical line in grid',
