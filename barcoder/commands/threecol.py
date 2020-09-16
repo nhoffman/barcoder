@@ -215,7 +215,9 @@ def build_parser(parser):
     parser.add_argument('-n', '--npages', default=1, type=int)
     parser.add_argument('-N', '--nfiles', default=1, type=int)
     parser.add_argument('-b', '--batch', help='batch identifier (placed on lab label)')
-    parser.add_argument('--vline', help='draw vertical line',
+    parser.add_argument('--grid', help='draw grid',
+                        action='store_true', default=False)
+    parser.add_argument('--vline', help='include vertical line in grid',
                         action='store_true', default=False)
     parser.add_argument('--fake-code', help='fill sheet with this fake code')
 
@@ -239,7 +241,8 @@ def action(args):
         for page_number in range(args.npages):
             fill_sheet(canvas, layout=layout, page_number=page_number,
                        fake_code=args.fake_code, batch=args.batch)
-            draw_grid(canvas, layout=layout, include_vline=args.vline)
+            if args.grid:
+                draw_grid(canvas, layout=layout, include_vline=args.vline)
             # starts a new page
             canvas.showPage()
 
