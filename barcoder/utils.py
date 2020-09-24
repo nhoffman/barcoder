@@ -67,6 +67,20 @@ def get_code128(text, add_semicolon=False):
         return f.read()
 
 
+def get_pool_label(text):
+
+    options = {
+        'module_height': 5,
+        'text_distance': 1,
+    }
+
+    ean = barcode.get('code128', text.replace('-', ''), writer=ImageWriter())
+    with io.BytesIO() as f:
+        ean.write(f, options=options, text=text)
+        f.seek(0)
+        return f.read()
+
+
 def hline(p, y, pagesize=letter):
     """
     Draw a horizontal line at y given p = canvas.beginPath()
