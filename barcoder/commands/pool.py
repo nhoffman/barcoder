@@ -1,4 +1,4 @@
-"""Labels for pooled specimens
+"""Labels for pooled specimens using 4x20 label stock (Avery 94203)
 """
 
 # https://gist.github.com/lkrone/04ca0e3ae3a78f434e5ac84cfd9ca6b1
