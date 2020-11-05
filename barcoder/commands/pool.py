@@ -40,9 +40,9 @@ avery94203 = Layout(pagesize=letter, label_height=0.5 * inch, label_width=1.75 *
                     vspace=0 * inch, hspace=(5 / 16) * inch)
 
 
-def generate_codes(timestamp, batch, hexlen=5):
+def generate_codes(timestamp, batch, hexlen=4):
     for i in range(int('0x' + 'f' * hexlen, base=16)):
-        h = hex(i)[2:].upper().zfill(5)
+        h = hex(i)[2:].upper().zfill(hexlen)
         yield f'P{timestamp}-{batch}-{h}'
 
 
@@ -115,9 +115,9 @@ def build_parser(parser):
                         help='directory for output [%(default)s]')
     parser.add_argument('-t', '--timestamp', default=datetime.now().strftime('%y%j')[1:],
                         help='[default %(default)s]')
-    parser.add_argument('-p', '--npages', default=1, type=int,
+    parser.add_argument('-p', '--npages', default=25, type=int,
                         help='number of pages, max 99 [default %(default)s]')
-    parser.add_argument('-f', '--nfiles', default=1, type=int, help='[default %(default)s]')
+    parser.add_argument('-f', '--nfiles', default=99, type=int, help='[default %(default)s]')
     parser.add_argument('--grid', help='draw grid',
                         action='store_true', default=False)
     parser.add_argument('--fake-code', help='fill sheet with this fake code')
@@ -129,11 +129,14 @@ def action(args):
     if args.npages > 99:
         sys.exit('The maximum number of pages is 99')
 
+    if args.nfiles > 99:
+        sys.exit('The maximum number of files is 99')
+
     outdir = Path(args.dirname)
     outdir.mkdir(parents=True, exist_ok=True)
 
     for fileno in range(1, args.nfiles + 1):
-        codes = generate_codes(args.timestamp, f'{fileno:03}')
+        codes = generate_codes(args.timestamp, f'{fileno:02}')
 
         outfile = outdir / args.outfile.format(
             timestamp=args.timestamp,
