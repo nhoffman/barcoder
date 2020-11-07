@@ -13,6 +13,7 @@ import argparse
 import sys
 from collections import namedtuple
 from pathlib import Path
+import csv
 
 from reportlab.lib.pagesizes import letter
 from reportlab.graphics.shapes import Drawing, String, Image
@@ -168,10 +169,13 @@ def qrlabel(layout, code, img, counter, batch=None):
 
 def fill_sheet(canvas, layout, page_number, fake_code=None, batch=None):
 
+    codes = []
+
     with tempfile.TemporaryDirectory() as d:
         ypos = layout.margin_bottom
         for label_number in reversed(range(layout.num_y)):
             code = fake_code or get_code()
+            codes.append(code)
             counter = f'({page_number + 1}-{label_number + 1})'
 
             # generate barcode images
@@ -201,6 +205,7 @@ def fill_sheet(canvas, layout, page_number, fake_code=None, batch=None):
 
             ypos += layout.label_height + layout.vspace
 
+    return codes
 
 
 def build_parser(parser):
@@ -233,17 +238,23 @@ def action(args):
             fileno=fileno,
             npages=args.npages
         )
-
         print(outfile)
 
-        canvas = Canvas(str(outfile), pagesize=layout.pagesize)
-        for page_number in range(args.npages):
-            fill_sheet(canvas, layout=layout, page_number=page_number,
-                       fake_code=args.fake_code, batch=args.batch)
-            if args.grid:
-                draw_grid(canvas, layout=layout, include_vline=args.vline)
-            # starts a new page
-            canvas.showPage()
+        logfilename = str(outfile).replace('.pdf', '.csv')
+        with open(logfilename, 'w') as f:
+            writer = csv.writer(f)
 
-        canvas.save()
+            canvas = Canvas(str(outfile), pagesize=layout.pagesize)
+            for page_number in range(args.npages):
+                codes = fill_sheet(canvas, layout=layout, page_number=page_number,
+                                   fake_code=args.fake_code, batch=args.batch)
+                if args.grid:
+                    draw_grid(canvas, layout=layout, include_vline=args.vline)
+                # starts a new page
+                canvas.showPage()
+
+                for code in codes:
+                    writer.writerow([outfile, page_number + 1, code])
+
+            canvas.save()
 
