@@ -37,9 +37,9 @@ class CheckVersion(Command):
 
 package_data = ['data/*']
 
-params = {'author': 'Your name',
-          'author_email': 'Your email',
-          'description': 'Package description',
+params = {'author': 'Noah Hoffman',
+          'author_email': 'ngh2@uw.edu',
+          'description': 'Create specimen label barcodes for Securelink and other applications',
           'name': 'barcoder',
           'packages': find_packages(),
           'package_dir': {'barcoder': 'barcoder'},
