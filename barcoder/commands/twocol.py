@@ -134,7 +134,7 @@ def fill_sheet(canvas, page_number, fake_code=None, batch=None):
     with tempfile.TemporaryDirectory() as d:
         for label_number in range(NUM_LABELS_Y):
             counter = f'{page_number + 1}-{label_number + 1}'
-            code = fake_code or get_code()
+            code = fake_code or get_code(length=16)
 
             y = SHEET_TOP - LABEL_HEIGHT - label_number * LABEL_HEIGHT
 

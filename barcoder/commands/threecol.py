@@ -167,14 +167,18 @@ def qrlabel(layout, code, img, counter, batch=None):
     return label_drawing
 
 
-def fill_sheet(canvas, layout, page_number, fake_code=None, batch=None):
+def fill_sheet(canvas, layout, page_number, code_length, fake_code=None, batch=None):
+
+    if fake_code:
+        if len(fake_code) != code_length:
+            raise ValueError(f'fake code {fake_code} must be the specified length ({code_length})')
 
     codes = []
 
     with tempfile.TemporaryDirectory() as d:
         ypos = layout.margin_bottom
         for label_number in reversed(range(layout.num_y)):
-            code = fake_code or get_code()
+            code = fake_code or get_code(code_length)
             codes.append(code)
             counter = f'({page_number + 1}-{label_number + 1})'
 
@@ -224,6 +228,8 @@ def build_parser(parser):
     parser.add_argument('--vline', help='include vertical line in grid',
                         action='store_true', default=False)
     parser.add_argument('--fake-code', help='fill sheet with this fake code')
+    parser.add_argument('-l', '--code-length', metavar='N', type=int, default=16,
+                        help='Total length of code in characters [%(default)s]')
 
 
 def action(args):
@@ -246,8 +252,15 @@ def action(args):
 
             canvas = Canvas(str(outfile), pagesize=layout.pagesize)
             for page_number in range(args.npages):
-                codes = fill_sheet(canvas, layout=layout, page_number=page_number,
-                                   fake_code=args.fake_code, batch=args.batch)
+
+                codes = fill_sheet(
+                    canvas,
+                    layout=layout,
+                    page_number=page_number,
+                    code_length=args.code_length,
+                    fake_code=args.fake_code,
+                    batch=args.batch)
+
                 if args.grid:
                     draw_grid(canvas, layout=layout, include_vline=args.vline)
                 # starts a new page

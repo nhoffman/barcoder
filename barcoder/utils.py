@@ -18,7 +18,7 @@ def get_chunks(text, n):
         yield text[i:i + n]
 
 
-def get_code(length=16):
+def get_code(length):
     """Return a string of the specified length composed of N - 1 random
     characters followed by the uppercased first character of the md5 checksum.
 
