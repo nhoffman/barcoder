@@ -14,6 +14,7 @@ import sys
 from collections import namedtuple
 from pathlib import Path
 import csv
+import itertools
 
 from reportlab.lib.pagesizes import letter
 from reportlab.graphics.shapes import Drawing, String, Image
@@ -21,7 +22,8 @@ from reportlab.graphics import renderPDF
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.units import inch
 
-from barcoder.utils import (get_chunks, get_code, get_qr, get_code128, hline, vline)
+from barcoder.utils import (get_chunks, get_qr, generate_codes,
+                            generate_fake_codes, get_code128, hline, vline)
 
 log = logging.getLogger(__name__)
 
@@ -167,18 +169,14 @@ def qrlabel(layout, code, img, counter, batch=None):
     return label_drawing
 
 
-def fill_sheet(canvas, layout, page_number, code_length, fake_code=None, batch=None):
-
-    if fake_code:
-        if len(fake_code) != code_length:
-            raise ValueError(f'fake code {fake_code} must be the specified length ({code_length})')
+def fill_sheet(canvas, layout, page_number, code_generator, batch=None):
 
     codes = []
 
     with tempfile.TemporaryDirectory() as d:
         ypos = layout.margin_bottom
         for label_number in reversed(range(layout.num_y)):
-            code = fake_code or get_code(code_length)
+            code = next(code_generator)
             codes.append(code)
             counter = f'({page_number + 1}-{label_number + 1})'
 
@@ -217,6 +215,8 @@ def build_parser(parser):
     parser.add_argument('-o', '--outfile',
                         default='securelink-3x10-{batch}-{fileno:03d}-n{npages}.pdf',
                         help='File name template [%(default)s]')
+    parser.add_argument('--input-codes', metavar='FILE', type=argparse.FileType(),
+                        help='optional CSV file with previously used codes in last column')
     parser.add_argument('-d', '--dirname', default='.',
                         help='directory for output [%(default)s]')
     parser.add_argument('-n', '--npages', default=1, type=int, help='[default %(default)s]')
@@ -227,9 +227,11 @@ def build_parser(parser):
                         action='store_true', default=False)
     parser.add_argument('--vline', help='include vertical line in grid',
                         action='store_true', default=False)
-    parser.add_argument('--fake-code', help='fill sheet with this fake code')
     parser.add_argument('-l', '--code-length', metavar='N', type=int, default=16,
                         help='Total length of code in characters [%(default)s]')
+    parser.add_argument('--fake-code', help='fill sheet with this fake code')
+    parser.add_argument('--fake-series', action='store_true', default=False,
+                        help='fill sheets with a series of contrived codes')
 
 
 def action(args):
@@ -237,6 +239,18 @@ def action(args):
 
     outdir = Path(args.dirname)
     outdir.mkdir(parents=True, exist_ok=True)
+
+    if args.fake_code:
+        code_generator = itertools.repeat(args.fake_code)
+    elif args.fake_series:
+        code_generator = generate_fake_codes(args.code_length)
+    else:
+        if args.input_codes:
+            already_seen = {row[-1] for row in csv.reader(args.input_codes)}
+            log.info(f'read {len(already_seen)} codes from {args.input_codes.name}')
+        else:
+            already_seen = None
+        code_generator = generate_codes(length=args.code_length, already_seen=already_seen)
 
     for fileno in range(1, args.nfiles + 1):
         outfile = outdir / args.outfile.format(
@@ -257,8 +271,7 @@ def action(args):
                     canvas,
                     layout=layout,
                     page_number=page_number,
-                    code_length=args.code_length,
-                    fake_code=args.fake_code,
+                    code_generator=code_generator,
                     batch=args.batch)
 
                 if args.grid:

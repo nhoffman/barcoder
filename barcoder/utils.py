@@ -33,6 +33,33 @@ def get_code(length):
     return text + check_char
 
 
+def generate_codes(length, already_seen=None, stop_if_seen=False):
+    already_seen = already_seen or set()
+
+    while True:
+        code = get_code(length)
+        if code in already_seen:
+            msg = f'code {code} has already been seen'
+            log.warning(msg)
+            if stop_if_seen:
+                raise ValueError(msg)
+        else:
+            already_seen.add(code)
+            yield code
+
+
+def generate_fake_codes(length):
+
+    chars = [c for c in string.ascii_uppercase + string.digits
+             if c not in {'I', '1', 'O', '0'}]
+
+    for char in chars:
+        basestr = char * (length - 2)
+        for penultimate in chars:
+            allbutlast = basestr + penultimate
+            yield allbutlast + hashlib.md5(allbutlast.encode('utf-8')).hexdigest()[0].upper()
+
+
 def get_qr(text, **kwargs):
     """Return bytes representing a QR code image. kwargs can be used to
     provide parameters to qrcode.QRCode() constructor.
