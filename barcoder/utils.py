@@ -48,16 +48,18 @@ def generate_codes(length, already_seen=None, stop_if_seen=False):
             yield code
 
 
-def generate_fake_codes(length):
+def generate_fake_codes(length, chars=None):
 
-    chars = [c for c in string.ascii_uppercase + string.digits
-             if c not in {'I', '1', 'O', '0'}]
+    allchars = [c for c in string.ascii_uppercase + string.digits
+                if c not in {'I', '1', 'O', '0'}]
+    basechars = chars or allchars
 
-    for char in chars:
+    for char in basechars:
         basestr = char * (length - 2)
-        for penultimate in chars:
+        for penultimate in allchars:
             allbutlast = basestr + penultimate
-            yield allbutlast + hashlib.md5(allbutlast.encode('utf-8')).hexdigest()[0].upper()
+            code = allbutlast + hashlib.md5(allbutlast.encode('utf-8')).hexdigest()[0].upper()
+            yield code
 
 
 def get_qr(text, **kwargs):

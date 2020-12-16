@@ -232,6 +232,8 @@ def build_parser(parser):
     parser.add_argument('--fake-code', help='fill sheet with this fake code')
     parser.add_argument('--fake-series', action='store_true', default=False,
                         help='fill sheets with a series of contrived codes')
+    parser.add_argument('--fake-series-chars',
+                        help='use these characters for the fake series')
 
 
 def action(args):
@@ -243,7 +245,7 @@ def action(args):
     if args.fake_code:
         code_generator = itertools.repeat(args.fake_code)
     elif args.fake_series:
-        code_generator = generate_fake_codes(args.code_length)
+        code_generator = generate_fake_codes(args.code_length, args.fake_series_chars)
     else:
         if args.input_codes:
             already_seen = {row[-1] for row in csv.reader(args.input_codes)}
