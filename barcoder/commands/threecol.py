@@ -83,10 +83,6 @@ def specimenlabel(layout, code, img, counter, batch=None):
                              text=f'{counter}',
                              fontName="Helvetica", fontSize=6, textAnchor="end"))
 
-    label_drawing.add(String(layout.label_width - 5, 7,
-                             text='specimen',
-                             fontName="Helvetica", fontSize=6, textAnchor="end"))
-
     label_drawing.add(String(5, bc_height + 5,
                              'DOB (MM/DD/YYYY): ____________________',
                              fontName="Helvetica", fontSize=8, textAnchor="start"))
@@ -98,40 +94,44 @@ def specimenlabel(layout, code, img, counter, batch=None):
     return label_drawing
 
 
-def lablabel(layout, code, counter, batch=None):
+def lablabel(layout, code, counter, filename, qr_path):
     label_drawing = Drawing(layout.label_width, layout.label_height)
-    # text positioning relative to top of label
+
     lmar = 5
+    bc_edge = 0.75 * inch
 
-    # x, y, width, height, path
-    bc_width = 2 * inch
-    bc_height = 0.5 * inch
+    # place objects starting from the bottom
+    ypos = 5
+    label_drawing.add(String(x=lmar, y=ypos,
+                             text=filename,
+                             fontName="Helvetica", fontSize=8, textAnchor="start"))
 
-    label_drawing.add(String(bc_width, 55,
+    label_drawing.add(String(x=layout.label_width - 5, y=ypos,
                              text=f'{counter} v{VERSION}',
-                             fontName="Helvetica", fontSize=8, textAnchor="start"))
+                             fontName="Helvetica", fontSize=8, textAnchor="end"))
 
-    label_drawing.add(String(bc_width, 45,
-                             text=batch,
-                             fontName="Helvetica", fontSize=8, textAnchor="start"))
+    barcode = Image(x=0, y=12, width=bc_edge, height=bc_edge, path=qr_path)
+    label_drawing.add(barcode)
 
-    ypos = 25
-    label_drawing.add(String(lmar, ypos,
+
+    label_drawing.add(String(x=bc_edge, y=18,
+                             text='or requisition (no name/DOB)',
+                             fontName="Helvetica",
+                             fontSize=8, textAnchor="start"))
+    label_drawing.add(String(x=bc_edge, y=28,
+                             text='<-- for specimen (write name/DOB)',
+                             fontName="Helvetica",
+                             fontSize=8, textAnchor="start"))
+
+    label_drawing.add(String(x=layout.label_width - 5, y=44,
+                             text='for individual being tested -->',
+                             fontName="Helvetica",
+                             fontSize=8, textAnchor="end"))
+
+    label_drawing.add(String(x=bc_edge, y=58,
                              text='This label may be discarded',
                              fontName="Helvetica-Bold",
                              fontSize=10, textAnchor="start"))
-
-    ypos = 15
-    label_drawing.add(String(lmar, ypos,
-                             '<-- place on specimen',
-                             fontName="Helvetica",
-                             fontSize=8, textAnchor="start"))
-
-    ypos = 5
-    label_drawing.add(String(lmar, ypos,
-                             '     give to individual being tested -->',
-                             fontName="Helvetica",
-                             fontSize=8, textAnchor="start"))
 
     return label_drawing
 
@@ -169,11 +169,17 @@ def qrlabel(layout, code, img, counter, batch=None):
     return label_drawing
 
 
-def fill_sheet(canvas, layout, page_number, code_generator, batch=None):
+def fill_sheet(canvas, layout, page_number, code_generator, batch=None, filename='filename'):
 
     codes = []
 
     with tempfile.TemporaryDirectory() as d:
+
+        # qr image for batch
+        filename_qr_path = path.join(d, 'filename_qr.png')
+        with open(filename_qr_path, 'wb') as f:
+            f.write(get_qr(filename))
+
         ypos = layout.margin_bottom
         for label_number in reversed(range(layout.num_y)):
             code = next(code_generator)
@@ -194,7 +200,7 @@ def fill_sheet(canvas, layout, page_number, code_generator, batch=None):
             renderPDF.draw(label1, canvas, layout.margin_left, ypos)
 
             # second column
-            label2 = lablabel(layout, code, counter, batch)
+            label2 = lablabel(layout, code, counter, filename, filename_qr_path)
             renderPDF.draw(label2, canvas,
                            layout.margin_left + layout.label_width + layout.hspace,
                            ypos)
@@ -274,7 +280,8 @@ def action(args):
                     layout=layout,
                     page_number=page_number,
                     code_generator=code_generator,
-                    batch=args.batch)
+                    batch=args.batch,
+                    filename=str(outfile.name))
 
                 if args.grid:
                     draw_grid(canvas, layout=layout, include_vline=args.vline)
