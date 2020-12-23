@@ -119,12 +119,12 @@ def lablabel(layout, code, counter, filename, qr_path):
                              fontName="Helvetica",
                              fontSize=8, textAnchor="start"))
     label_drawing.add(String(x=bc_edge, y=28,
-                             text='<-- for specimen (write name/DOB)',
+                             text='<-- For specimen (write name/DOB)',
                              fontName="Helvetica",
                              fontSize=8, textAnchor="start"))
 
     label_drawing.add(String(x=layout.label_width - 5, y=44,
-                             text='for individual being tested -->',
+                             text='For individual being tested -->',
                              fontName="Helvetica",
                              fontSize=8, textAnchor="end"))
 
