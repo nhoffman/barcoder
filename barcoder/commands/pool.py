@@ -72,9 +72,9 @@ def draw_grid(canvas, layout, include_vline=False):
 def specimenlabel(layout, code, img):
     label_drawing = Drawing(layout.label_width, layout.label_height)
 
-    bc_width = 1.75 * inch
+    bc_width = 1.60 * inch
     bc_height = 0.4 * inch
-    barcode = Image(x=0, y=0, width=bc_width, height=bc_height, path=img)
+    barcode = Image(x=0.05 * inch, y=0, width=bc_width, height=bc_height, path=img)
     label_drawing.add(barcode)
     return label_drawing
 
