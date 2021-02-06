@@ -13,23 +13,26 @@ import qrcode
 log = logging.getLogger(__name__)
 
 
+ALPHANUM_CHARS = [c for c in string.ascii_uppercase + string.digits
+                  if c not in {'I', '1', 'O', '0'}]
+NUM_CHARS = [c for c in string.digits if c not in {'1', '0'}]
+
+
 def get_chunks(text, n):
     for i in range(0, len(text), n):
         yield text[i:i + n]
 
 
-def get_code(length):
+def get_code(length, alphanum_chars=ALPHANUM_CHARS, num_chars=NUM_CHARS):
     """Return a string of the specified length composed of N - 1 random
-    characters followed by the uppercased first character of the md5 checksum.
+    characters followed by the uppercased first character of the md5
+    checksum. The first position is always numeric.
 
     """
 
-    chars = [c for c in string.ascii_uppercase + string.digits
-             if c not in {'I', '1', 'O', '0'}]
-
-    text = ''.join(secrets.choice(chars) for i in range(length - 1))
+    text = secrets.choice(num_chars)
+    text += ''.join(secrets.choice(alphanum_chars) for i in range(length - 2))
     check_char = hashlib.md5(text.encode('utf-8')).hexdigest()[0].upper()
-
     return text + check_char
 
 
