@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 
 URL = 'https://securelink.labmed.uw.edu'
 
-VERSION = 4
+VERSION = 5
 
 Layout = namedtuple('Layout', ['pagesize', 'label_height', 'label_width',
                                'num_x', 'num_y',
@@ -74,9 +74,10 @@ def specimenlabel(layout, code, img, counter, batch=None):
     label_drawing = Drawing(layout.label_width, layout.label_height)
 
     # x, y, width, height, path
-    bc_width = 2.2 * inch
-    bc_height = 0.5 * inch
-    barcode = Image(0, 0, bc_width, bc_height, img)
+    bc_width = 1.6 * inch
+    bc_height = 0.7 * inch
+    # center barcode horizontally
+    barcode = Image((layout.label_width - bc_width) / 2, 0, bc_width, bc_height, img)
     label_drawing.add(barcode)
 
     label_drawing.add(String(layout.label_width - 5, 16,
