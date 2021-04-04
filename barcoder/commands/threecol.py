@@ -234,7 +234,7 @@ def build_parser(parser):
                         action='store_true', default=False)
     parser.add_argument('--vline', help='include vertical line in grid',
                         action='store_true', default=False)
-    parser.add_argument('-l', '--code-length', metavar='N', type=int, default=16,
+    parser.add_argument('-l', '--code-length', metavar='N', type=int, default=12,
                         help='Total length of code in characters [%(default)s]')
     parser.add_argument('--fake-code', help='fill sheet with this fake code')
     parser.add_argument('--fake-series', action='store_true', default=False,
