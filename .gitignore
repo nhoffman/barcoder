@@ -2,7 +2,7 @@
 build
 working
 test_output
-data/ver
+barcoder/data/ver
 MANIFEST
 dist
 *-env
