@@ -75,22 +75,23 @@ def specimenlabel(layout, code, img, counter, batch=None):
 
     # x, y, width, height, path
     bc_width = 1.6 * inch
-    bc_height = 0.7 * inch
-    # center barcode horizontally
-    barcode = Image((layout.label_width - bc_width) / 2, 0, bc_width, bc_height, img)
-    label_drawing.add(barcode)
+    bc_height = 0.6 * inch
 
     label_drawing.add(String(layout.label_width - 5, 16,
                              text=f'{counter}',
                              fontName="Helvetica", fontSize=6, textAnchor="end"))
 
-    label_drawing.add(String(5, bc_height + 5,
+    label_drawing.add(String(5, bc_height + 3,
                              'DOB (MM/DD/YYYY): ____________________',
                              fontName="Helvetica", fontSize=8, textAnchor="start"))
 
-    label_drawing.add(String(5, bc_height + 18,
+    label_drawing.add(String(5, bc_height + 15,
                              'Name: ________________________________',
                              fontName="Helvetica", fontSize=8, textAnchor="start"))
+
+    # center barcode horizontally
+    barcode = Image((layout.label_width - bc_width) / 2, -3, bc_width, bc_height, img)
+    label_drawing.add(barcode)
 
     return label_drawing
 
