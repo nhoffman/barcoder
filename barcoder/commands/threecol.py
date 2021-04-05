@@ -81,11 +81,11 @@ def specimenlabel(layout, code, img, counter, batch=None):
                              text=f'{counter}',
                              fontName="Helvetica", fontSize=6, textAnchor="end"))
 
-    label_drawing.add(String(5, bc_height + 3,
+    label_drawing.add(String(5, bc_height,
                              'DOB (MM/DD/YYYY): ____________________',
                              fontName="Helvetica", fontSize=8, textAnchor="start"))
 
-    label_drawing.add(String(5, bc_height + 15,
+    label_drawing.add(String(5, bc_height + 12,
                              'Name: ________________________________',
                              fontName="Helvetica", fontSize=8, textAnchor="start"))
 
