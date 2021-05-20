@@ -27,17 +27,21 @@ from barcoder.utils import (get_chunks, get_pool_label, hline, vline)
 log = logging.getLogger(__name__)
 
 
-VERSION = 1
+VERSION = 2
 
 Layout = namedtuple('Layout', ['pagesize', 'label_height', 'label_width',
                                'num_x', 'num_y',
                                'margin_left', 'margin_bottom',
                                'vspace', 'hspace'])
 
-avery94203 = Layout(pagesize=letter, label_height=0.5 * inch, label_width=1.75 * inch,
+avery94203 = Layout(pagesize=letter,
+                    label_height=0.5 * inch,
+                    label_width=1.75 * inch,
                     num_x=4, num_y=20,
-                    margin_left=(5 / 16) * inch, margin_bottom=(17 / 32) * inch,
-                    vspace=0 * inch, hspace=(5 / 16) * inch)
+                    margin_left=(1 / 4) * inch,
+                    margin_bottom=(17 / 32) * inch,
+                    vspace=0 * inch,
+                    hspace=(9 / 32) * inch)
 
 
 def generate_codes(timestamp, batch, hexlen=4):
