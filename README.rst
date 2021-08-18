@@ -37,9 +37,10 @@ Examples
 ========
 
 These examples assume that you have the ``barcoder`` repo installed in
-your home directory. I have been running this on gattaca.
+your home directory. I have been running these on gattaca.
 
-To create batches of the three-column layout labels::
+To create batches of the three-column layout labels (this script isn't
+compatible with MacOS due to differences in xargs)::
 
   cd ~/barcoder
   saml2aws login
