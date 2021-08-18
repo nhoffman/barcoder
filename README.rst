@@ -39,13 +39,14 @@ Examples
 These examples assume that you have the ``barcoder`` repo installed in
 your home directory. I have been running these on gattaca.
 
-To create batches of the three-column layout labels (this script isn't
-compatible with MacOS due to differences in xargs)::
+To create batches of the three-column layout labels and upload to an
+s3 bucket (this script isn't compatible with MacOS due to differences
+in xargs)::
 
   cd ~/barcoder
   saml2aws login
   rm -r threecol*  # remove previous labels
-  scripts/make_12char.sh
+  scripts/make_12char.sh s3://uwlm-personal/ngh2/securelink
 
 I have been producing pool labels like this (on gattaca)::
 
