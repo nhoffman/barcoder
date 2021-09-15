@@ -26,8 +26,7 @@ for i in 1 2 3 4; do
         exit 1
     fi
 
-    echo {001..$nfiles} | \
-	tr " " "\n" | \
+    seq -w 1 $nfiles | \
 	xargs -P 20 -I XXX barcoder threecol \
 	      --dirname "$dirname" \
 	      --code-length 12 \
