@@ -51,9 +51,10 @@ params = {'author': 'Noah Hoffman',
           'test_suite': 'tests',
           'cmdclass': {'check_version': CheckVersion},
           'install_requires': [
-              'python-barcode==0.11.0',
+              'python-barcode==0.13.1',
               'qrcode==6.1',
-              'reportlab==3.5.42',
+              'reportlab==3.6.1',
+              'Pillow',
           ]}
 
 setup(**params)
