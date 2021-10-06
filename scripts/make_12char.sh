@@ -13,7 +13,7 @@ fi
 
 set -v
 bucket="$1"
-nfiles="${2-250}"
+nfiles="${2-350}"
 
 for i in 1 2 3 4; do
 
