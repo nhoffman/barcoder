@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 ALPHANUM_CHARS = [c for c in string.ascii_uppercase + string.digits
-                  if c not in {'I', '1', 'O', '0'}]
+                  if c not in {'I', '1', 'O', '0', 'U'}]
 NUM_CHARS = [c for c in string.digits if c not in {'1', '0'}]
 
 
