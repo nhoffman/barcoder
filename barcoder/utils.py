@@ -127,3 +127,27 @@ def vline(p, x, pagesize=letter):
     """
     p.moveTo(x, 0)
     p.lineTo(x, pagesize[1])
+
+
+def draw_grid(canvas, layout, include_vline=False):
+
+    p = canvas.beginPath()
+
+    if include_vline:
+        vpos = layout.margin_left
+        for i in range(layout.num_x):
+            vline(p, vpos)
+            vpos += layout.label_width
+            vline(p, vpos)
+            vpos += layout.hspace
+
+    hpos = layout.margin_bottom
+    for i in range(layout.num_y):
+        hline(p, hpos)
+        hpos += layout.label_height
+        hline(p, hpos)
+        hpos += layout.vspace
+
+    p.close()
+    canvas.drawPath(p)
+

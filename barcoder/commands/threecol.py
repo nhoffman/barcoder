@@ -6,68 +6,26 @@
 
 import logging
 import tempfile
-import os
 from os import path
-import datetime
 import argparse
-import sys
-from collections import namedtuple
 from pathlib import Path
 import csv
 import itertools
 
-from reportlab.lib.pagesizes import letter
 from reportlab.graphics.shapes import Drawing, String, Image
 from reportlab.graphics import renderPDF
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.units import inch
 
 from barcoder.utils import (get_chunks, get_qr, generate_codes,
-                            generate_fake_codes, get_code128, hline, vline)
+                            generate_fake_codes, get_code128, draw_grid)
+from barcoder import layouts
 
 log = logging.getLogger(__name__)
 
 URL = 'https://securelink.labmed.uw.edu'
 
 VERSION = 5
-
-Layout = namedtuple('Layout', ['pagesize', 'label_height', 'label_width',
-                               'num_x', 'num_y',
-                               'margin_left', 'margin_bottom',
-                               'vspace', 'hspace'])
-
-layout1 = Layout(pagesize=letter, label_height=1 * inch, label_width=2.5 * inch,
-                 num_x=3, num_y=8,
-                 margin_left=(5 / 16) * inch, margin_bottom=(5 / 8) * inch,
-                 vspace=0.25 * inch, hspace=(3 / 16) * inch)
-
-layout2 = Layout(pagesize=letter, label_height=1 * inch, label_width=(2 + 5 / 8) * inch,
-                 num_x=3, num_y=10,
-                 margin_left=(3 / 16) * inch, margin_bottom=0.5 * inch,
-                 vspace=0, hspace=(1 / 8) * inch)
-
-
-def draw_grid(canvas, layout, include_vline=False):
-
-    p = canvas.beginPath()
-
-    if include_vline:
-        vpos = layout.margin_left
-        for i in range(layout.num_x):
-            vline(p, vpos)
-            vpos += layout.label_width
-            vline(p, vpos)
-            vpos += layout.hspace
-
-    hpos = layout.margin_bottom
-    for i in range(layout.num_y):
-        hline(p, hpos)
-        hpos += layout.label_height
-        hline(p, hpos)
-        hpos += layout.vspace
-
-    p.close()
-    canvas.drawPath(p)
 
 
 def specimenlabel(layout, code, img, counter, batch=None):
@@ -114,7 +72,6 @@ def lablabel(layout, code, counter, filename, qr_path):
 
     barcode = Image(x=0, y=12, width=bc_edge, height=bc_edge, path=qr_path)
     label_drawing.add(barcode)
-
 
     label_drawing.add(String(x=bc_edge, y=18,
                              text='or requisition (no name/DOB)',
@@ -245,7 +202,7 @@ def build_parser(parser):
 
 
 def action(args):
-    layout = layout2
+    layout = layouts.threecol
 
     outdir = Path(args.dirname)
     outdir.mkdir(parents=True, exist_ok=True)
@@ -294,4 +251,3 @@ def action(args):
                     writer.writerow([outfile, page_number + 1, code])
 
             canvas.save()
-
