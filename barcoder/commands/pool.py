@@ -6,71 +6,29 @@
 
 import logging
 import tempfile
-import os
 from os import path
 from datetime import datetime
-import argparse
 import sys
-from collections import namedtuple
 from pathlib import Path
-from itertools import count
 
-from reportlab.lib.pagesizes import letter
-from reportlab.graphics.shapes import Drawing, String, Image
+from reportlab.graphics.shapes import Drawing, Image
 from reportlab.graphics import renderPDF
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.units import inch
 
-from barcoder import __version__
-from barcoder.utils import (get_chunks, get_pool_label, hline, vline)
+from barcoder import layouts, __version__
+from barcoder.utils import get_pool_label, draw_grid
 
 log = logging.getLogger(__name__)
 
 
 VERSION = 2
 
-Layout = namedtuple('Layout', ['pagesize', 'label_height', 'label_width',
-                               'num_x', 'num_y',
-                               'margin_left', 'margin_bottom',
-                               'vspace', 'hspace'])
-
-avery94203 = Layout(pagesize=letter,
-                    label_height=0.5 * inch,
-                    label_width=1.75 * inch,
-                    num_x=4, num_y=20,
-                    margin_left=(1 / 4) * inch,
-                    margin_bottom=(17 / 32) * inch,
-                    vspace=0 * inch,
-                    hspace=(9 / 32) * inch)
-
 
 def generate_codes(timestamp, batch, hexlen=4):
     for i in range(int('0x' + 'f' * hexlen, base=16)):
         h = hex(i)[2:].upper().zfill(hexlen)
         yield f'P{timestamp}-{batch}-{h}'
-
-
-def draw_grid(canvas, layout, include_vline=False):
-
-    p = canvas.beginPath()
-
-    if include_vline:
-        vpos = layout.margin_left
-        for i in range(layout.num_x):
-            vline(p, vpos)
-            vpos += layout.label_width
-            vline(p, vpos)
-            vpos += layout.hspace
-
-    hpos = layout.margin_bottom
-    for i in range(layout.num_y):
-        hline(p, hpos)
-        hpos += layout.label_height
-        hline(p, hpos)
-        hpos += layout.vspace
-
-    p.close()
-    canvas.drawPath(p)
 
 
 def specimenlabel(layout, code, img):
@@ -128,7 +86,7 @@ def build_parser(parser):
 
 
 def action(args):
-    layout = avery94203
+    layout = layouts.pool
 
     if args.npages > 99:
         sys.exit('The maximum number of pages is 99')
@@ -167,4 +125,3 @@ def action(args):
             canvas.showPage()
 
         canvas.save()
-
